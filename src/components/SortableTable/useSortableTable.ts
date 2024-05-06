@@ -15,10 +15,10 @@ type UseSortableTableReturnType = SortableTableState & {
   sortByKey: (key: string) => void
 }
 
-const useSortableTable = (
+export default function useSortableTable(
   data: TableDataItem[],
   defaultSortKey: string
-): UseSortableTableReturnType => {
+): UseSortableTableReturnType {
   const [state, setState] = useState<SortableTableState>({
     sortedData: data,
     sortKey: defaultSortKey,
@@ -47,5 +47,3 @@ const useSortableTable = (
     sortByKey,
   }
 }
-
-export default useSortableTable
