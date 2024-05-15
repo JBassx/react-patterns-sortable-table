@@ -21,3 +21,7 @@
   padding: 8px;
   width: 200px;
 }
+
+.sortableTable tr.selected {
+  background-color: #edf4fb;
+}

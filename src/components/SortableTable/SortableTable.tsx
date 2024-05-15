@@ -7,15 +7,19 @@ interface TableComponentProps {
 }
 
 export default function SortableTable({ data, columns }: TableComponentProps) {
-  const { sortedData, sortKey, sortDirection, sortByKey } = useSortableTable(
-    data,
-    columns[0]
-  )
+  const { sortedData, sortKey, sortDirection, sortByKey, toggleSelect } =
+    useSortableTable(data, columns[0])
+
+  const handleToggleSelect = (id: string) => {
+    toggleSelect(id)
+  }
 
   return (
     <table className={styles.sortableTable}>
       <thead>
         <tr>
+          <th>Select</th>
+
           {columns.map((column) => (
             <th key={column} onClick={() => sortByKey(column)}>
               {column}
@@ -28,7 +32,14 @@ export default function SortableTable({ data, columns }: TableComponentProps) {
       </thead>
       <tbody>
         {sortedData.map((item) => (
-          <tr key={item.id}>
+          <tr key={item.id} className={item.selected ? styles.selected : ''}>
+            <td>
+              <input
+                type="checkbox"
+                checked={item.selected}
+                onChange={() => handleToggleSelect(item.id)}
+              />
+            </td>
             {columns.map((column) => (
               <td key={column}>{item[column]}</td>
             ))}

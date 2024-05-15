@@ -1,49 +1,104 @@
-import { useState } from 'react'
+import { useReducer } from 'react'
 
 export type TableDataItem = {
   id: string
-  [key: string]: string
+  selected?: boolean
+  [key: string]: string | boolean | null | undefined
 }
+
+type SortDirection = 'asc' | 'desc'
 
 type SortableTableState = {
   sortedData: TableDataItem[]
   sortKey: string
-  sortDirection: string
+  sortDirection: SortDirection
 }
 
-type UseSortableTableReturnType = SortableTableState & {
-  sortByKey: (key: string) => void
+enum ActionType {
+  SORT = 'SORT',
+  TOGGLE_SELECT = 'TOGGLE_SELECT',
+}
+
+type SortPayload = {
+  key: string
+  direction: SortDirection
+}
+
+type ToggleSelectPayload = {
+  id: string
+}
+
+type Action =
+  | { type: ActionType.SORT; payload: SortPayload }
+  | { type: ActionType.TOGGLE_SELECT; payload: ToggleSelectPayload }
+
+const sortData = (state: SortableTableState, payload: SortPayload) => {
+  const { key, direction } = payload
+  const sorted = [...state.sortedData].sort((a, b) => {
+    const valueA = a[key] || ''
+    const valueB = b[key] || ''
+    if (valueA < valueB) return direction === 'asc' ? -1 : 1
+    if (valueA > valueB) return direction === 'asc' ? 1 : -1
+    return 0
+  })
+
+  return {
+    ...state,
+    sortedData: sorted,
+    sortKey: key,
+    sortDirection: direction,
+  }
+}
+
+const toggleSelect = (
+  state: SortableTableState,
+  payload: ToggleSelectPayload
+) => {
+  const { id } = payload
+  const updatedData = state.sortedData.map((item) =>
+    item.id === id ? { ...item, selected: !item.selected } : item
+  )
+
+  return {
+    ...state,
+    sortedData: updatedData,
+  }
+}
+
+const sortReducer = (state: SortableTableState, action: Action) => {
+  switch (action.type) {
+    case ActionType.SORT:
+      return sortData(state, action.payload)
+    case ActionType.TOGGLE_SELECT:
+      return toggleSelect(state, action.payload)
+    default:
+      return state
+  }
 }
 
 export default function useSortableTable(
   data: TableDataItem[],
   defaultSortKey: string
-): UseSortableTableReturnType {
-  const [state, setState] = useState<SortableTableState>({
+) {
+  const initialState: SortableTableState = {
     sortedData: data,
     sortKey: defaultSortKey,
     sortDirection: 'asc',
-  })
+  }
 
-  const sortByKey = (key: string) => {
-    const direction =
-      key === state.sortKey && state.sortDirection === 'asc' ? 'desc' : 'asc'
+  const [state, dispatch] = useReducer(sortReducer, initialState)
 
-    const sorted = [...state.sortedData].sort((a, b) => {
-      if (a[key] < b[key]) return direction === 'asc' ? -1 : 1
-      if (a[key] > b[key]) return direction === 'asc' ? 1 : -1
-      return 0
-    })
+  const sortByKey = (key: string, direction: SortDirection = 'asc') => {
+    dispatch({ type: ActionType.SORT, payload: { key, direction } })
+  }
 
-    setState({
-      sortedData: sorted,
-      sortKey: key,
-      sortDirection: direction,
-    })
+  const toggleSelect = (id: string) => {
+    dispatch({ type: ActionType.TOGGLE_SELECT, payload: { id } })
   }
 
   return {
     ...state,
     sortByKey,
+    toggleSelect,
   }
 }
