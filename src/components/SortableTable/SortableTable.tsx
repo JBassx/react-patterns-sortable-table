@@ -1,7 +1,7 @@
 import useSortableTable, { TableDataItem } from './useSortableTable'
 import styles from './SortableTable.module.css'
 
-interface TableComponentProps {
+type TableComponentProps = {
   data: TableDataItem[]
   columns: string[]
 }
