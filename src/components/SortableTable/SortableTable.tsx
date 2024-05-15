@@ -4,14 +4,23 @@ import styles from './SortableTable.module.css'
 type TableComponentProps = {
   data: TableDataItem[]
   columns: string[]
+  onItemSelectChange?: (itemId: string, isChecked: boolean) => void
 }
 
-export default function SortableTable({ data, columns }: TableComponentProps) {
+export default function SortableTable({
+  data,
+  columns,
+  onItemSelectChange,
+}: TableComponentProps) {
   const { sortedData, sortKey, sortDirection, sortByKey, toggleSelect } =
     useSortableTable(data, columns[0])
 
-  const handleToggleSelect = (id: string) => {
-    toggleSelect(id)
+  // Event handlers should be kept in the component's scope
+  const handleToggleSelect = (itemId: string, isChecked: boolean) => {
+    toggleSelect(itemId)
+    if (typeof onItemSelectChange === 'function') {
+      onItemSelectChange(itemId, isChecked)
+    }
   }
 
   return (
@@ -42,7 +51,7 @@ export default function SortableTable({ data, columns }: TableComponentProps) {
               <input
                 type="checkbox"
                 checked={item.selected}
-                onChange={() => handleToggleSelect(item.id)}
+                onChange={(e) => handleToggleSelect(item.id, e.target.checked)}
               />
             </td>
             {columns.map((column) => (

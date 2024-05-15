@@ -11,6 +11,9 @@ export default function App() {
           { id: '3', name: 'Peach', age: '30' },
         ]}
         columns={['id', 'name', 'age']}
+        onItemSelectChange={(id, selected) => {
+          console.log(`Item ${id} selected: ${selected}`)
+        }}
       />
     </div>
   )
