@@ -21,7 +21,12 @@ export default function SortableTable({ data, columns }: TableComponentProps) {
           <th>Select</th>
 
           {columns.map((column) => (
-            <th key={column} onClick={() => sortByKey(column)}>
+            <th
+              key={column}
+              onClick={() =>
+                sortByKey(column, sortDirection === 'asc' ? 'desc' : 'asc')
+              }
+            >
               {column}
               {sortKey === column && (
                 <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
